@@ -1,6 +1,7 @@
 <script>
     import { scaleLinear, scaleSqrt, scaleOrdinal } from 'd3-scale';
-    import { max } from 'd3-array';
+    import { max, mean } from 'd3-array';
+    import { fade, fly } from 'svelte/transition';
   
     let { data = [] } = $props();
   
@@ -8,12 +9,13 @@
     const height = 560;
   
     const margin = {
-      top: 30,
-      right: 40,
-      bottom: 75,
-      left: 75
+      top: 28,
+      right: 34,
+      bottom: 78,
+      left: 78
     };
   
+    let activeContinent = $state('All');
     let hovered = $state(null);
     let tooltipX = $state(0);
     let tooltipY = $state(0);
@@ -23,10 +25,18 @@
   
     const continents = $derived([...new Set(data.map((d) => d.continent))]);
   
+    const filterOptions = $derived(['All', ...continents]);
+  
+    const filteredData = $derived(
+      activeContinent === 'All'
+        ? data
+        : data.filter((d) => d.continent === activeContinent)
+    );
+  
     const colorScale = $derived(
       scaleOrdinal()
         .domain(continents)
-        .range(['#2563eb', '#14b8a6', '#f59e0b', '#ef4444', '#8b5cf6', '#22c55e'])
+        .range(['#3b82f6', '#14b8a6', '#f59e0b', '#ef4444', '#8b5cf6', '#22c55e'])
     );
   
     const xScale = $derived(
@@ -49,6 +59,20 @@
   
     const xTicks = $derived(xScale.ticks(6));
     const yTicks = $derived(yScale.ticks(6));
+  
+    const stats = $derived({
+      countries: filteredData.length,
+      avgLife: filteredData.length ? mean(filteredData, (d) => d.life).toFixed(1) : '0',
+      maxGdp: filteredData.length ? Math.round(max(filteredData, (d) => d.gdp) / 1000) + 'k' : '0',
+      totalPop: filteredData.length
+        ? Math.round(filteredData.reduce((sum, d) => sum + d.population, 0)) + ' Mio.'
+        : '0 Mio.'
+    });
+  
+    function selectContinent(continent) {
+      activeContinent = continent;
+      hovered = null;
+    }
   
     function showTooltip(event, d) {
       hovered = d;
@@ -75,6 +99,45 @@
   </script>
   
   <div class="viz-card">
+    <div class="control-bar">
+      <div class="control-copy">
+        <p class="control-label">Filter nach Kontinent</p>
+        <h3>Wähle einen Bereich für die Analyse</h3>
+      </div>
+  
+      <div class="filter-buttons">
+        {#each filterOptions as option}
+          <button
+            class:active-filter={activeContinent === option}
+            class="filter-btn"
+            onclick={() => selectContinent(option)}
+            type="button"
+          >
+            {option === 'All' ? 'Alle anzeigen' : option}
+          </button>
+        {/each}
+      </div>
+    </div>
+  
+    <div class="stats-grid">
+      <div class="stat-card" in:fly={{ y: 12, duration: 300 }} out:fade={{ duration: 180 }}>
+        <span class="stat-label">Länder</span>
+        <strong>{stats.countries}</strong>
+      </div>
+      <div class="stat-card" in:fly={{ y: 12, duration: 320 }} out:fade={{ duration: 180 }}>
+        <span class="stat-label">Ø Lebenserwartung</span>
+        <strong>{stats.avgLife} Jahre</strong>
+      </div>
+      <div class="stat-card" in:fly={{ y: 12, duration: 340 }} out:fade={{ duration: 180 }}>
+        <span class="stat-label">Höchstes BIP</span>
+        <strong>{stats.maxGdp}</strong>
+      </div>
+      <div class="stat-card" in:fly={{ y: 12, duration: 360 }} out:fade={{ duration: 180 }}>
+        <span class="stat-label">Gesamtbevölkerung</span>
+        <strong>{stats.totalPop}</strong>
+      </div>
+    </div>
+  
     <div class="viz-top">
       <div class="legend">
         {#each continents as continent}
@@ -133,31 +196,37 @@
             </g>
           {/each}
   
-          <text x={innerWidth / 2} y={innerHeight + 55} text-anchor="middle" class="axis-label">
+          <text x={innerWidth / 2} y={innerHeight + 58} text-anchor="middle" class="axis-label">
             BIP pro Kopf (USD)
           </text>
   
           <text
-            transform={`translate(-52, ${innerHeight / 2}) rotate(-90)`}
+            transform={`translate(-54, ${innerHeight / 2}) rotate(-90)`}
             text-anchor="middle"
             class="axis-label"
           >
             Lebenserwartung (Jahre)
           </text>
   
-          {#each data as d}
-            <circle
-              cx={xScale(d.gdp)}
-              cy={yScale(d.life)}
-              r={radiusScale(d.population)}
-              fill={colorScale(d.continent)}
-              class="data-point"
-              class:is-active={hovered?.country === d.country}
-              onmouseenter={(event) => showTooltip(event, d)}
-              onmousemove={moveTooltip}
-              onmouseleave={hideTooltip}
-            />
-          {/each}
+          {#key activeContinent}
+            <g>
+              {#each filteredData as d (d.country)}
+                <circle
+                  in:fade={{ duration: 350 }}
+                  out:fade={{ duration: 220 }}
+                  cx={xScale(d.gdp)}
+                  cy={yScale(d.life)}
+                  r={radiusScale(d.population)}
+                  fill={colorScale(d.continent)}
+                  class="data-point"
+                  class:is-active={hovered?.country === d.country}
+                  onmouseenter={(event) => showTooltip(event, d)}
+                  onmousemove={moveTooltip}
+                  onmouseleave={hideTooltip}
+                />
+              {/each}
+            </g>
+          {/key}
         </g>
       </svg>
   
@@ -165,6 +234,8 @@
         <div
           class="tooltip"
           style={`left:${tooltipX + 18}px; top:${tooltipY - 18}px;`}
+          in:fade={{ duration: 160 }}
+          out:fade={{ duration: 120 }}
         >
           <div class="tooltip-title">{hovered.country}</div>
           <div class="tooltip-row"><span>Kontinent</span><strong>{hovered.continent}</strong></div>

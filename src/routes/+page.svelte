@@ -4,10 +4,10 @@
   </script>
   
   <svelte:head>
-    <title>Interaktiver Scatterplot | D3.js + Svelte</title>
+    <title>Interaktive Datenvisualisierung | D3.js + Svelte</title>
     <meta
       name="description"
-      content="Professionelle Datenvisualisierung mit D3.js, SVG und Svelte."
+      content="Professioneller interaktiver Scatterplot mit D3.js, SVG und Svelte."
     />
   </svelte:head>
   
@@ -15,41 +15,41 @@
     <section class="hero">
       <div class="hero-content">
         <div class="hero-badge">Projekt · 1 Person · D3.js + SVG + Svelte</div>
-        <h1>Interaktive Datenvisualisierung mit einem Scatterplot</h1>
+        <h1>Interaktive Datenvisualisierung mit intelligentem Scatterplot</h1>
         <p class="hero-text">
-          Dieses Projekt zeigt eine moderne und interaktive Datenvisualisierung mit
-          <strong>D3.js</strong>, <strong>SVG</strong> und <strong>Svelte</strong>.
-          Dargestellt wird der Zusammenhang zwischen BIP pro Kopf und
-          Lebenserwartung. Die Punktgröße steht für die Bevölkerungszahl.
+          Dieses Projekt visualisiert den Zusammenhang zwischen
+          <strong>BIP pro Kopf</strong> und <strong>Lebenserwartung</strong>.
+          Nutzer können gezielt nach Kontinenten filtern, Länder analysieren und
+          über eine interaktive Oberfläche schneller Erkenntnisse gewinnen.
         </p>
       </div>
     </section>
   
     <section class="info-grid">
       <article class="info-card">
-        <span class="card-label">Projektziel</span>
-        <h2>Visuelle Analyse von Zusammenhängen</h2>
+        <span class="card-label">Analyse</span>
+        <h2>Klare Datenzusammenhänge</h2>
         <p>
-          Der Scatterplot macht Zusammenhänge zwischen wirtschaftlichen und sozialen
-          Indikatoren sichtbar und unterstützt eine verständliche Dateninterpretation.
-        </p>
-      </article>
-  
-      <article class="info-card">
-        <span class="card-label">Technologien</span>
-        <h2>D3.js, SVG und Svelte</h2>
-        <p>
-          D3.js übernimmt Skalierung und Datenlogik, SVG die grafische Darstellung
-          und Svelte die reaktive Benutzeroberfläche.
+          Der Scatterplot zeigt sofort, wie wirtschaftliche und soziale Kennzahlen
+          zusammenhängen.
         </p>
       </article>
   
       <article class="info-card">
         <span class="card-label">Interaktivität</span>
-        <h2>Tooltip, Farben und Größen</h2>
+        <h2>Filter, Hover und Animation</h2>
         <p>
-          Beim Hover werden zusätzliche Informationen angezeigt. Farben unterscheiden
-          Kontinente, die Punktgröße visualisiert die Bevölkerung.
+          Kontinente lassen sich per Button auswählen. Beim Überfahren erscheinen
+          detaillierte Informationen im Tooltip.
+        </p>
+      </article>
+  
+      <article class="info-card">
+        <span class="card-label">Technologie</span>
+        <h2>D3.js + SVG + Svelte</h2>
+        <p>
+          D3.js übernimmt Skalierung und Logik, SVG die Visualisierung und Svelte
+          die reaktive Benutzeroberfläche.
         </p>
       </article>
     </section>
@@ -57,8 +57,8 @@
     <section class="chart-panel">
       <div class="section-head">
         <div>
-          <p class="eyebrow">Datenvisualisierung</p>
-          <h2>Scatterplot der Länder im Vergleich</h2>
+          <p class="eyebrow">Interaktive Visualisierung</p>
+          <h2>Scatterplot mit Kontinent-Filter</h2>
         </div>
         <p class="section-copy">
           X-Achse: BIP pro Kopf · Y-Achse: Lebenserwartung · Größe: Bevölkerung
