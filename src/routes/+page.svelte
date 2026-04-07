@@ -1,70 +1,146 @@
 <script>
-    import ScatterPlot from '$lib/ScatterPlot.svelte';
-    import { countryData } from '$lib/data.js';
-  </script>
-  
-  <svelte:head>
-    <title>Interaktive Datenvisualisierung | D3.js + Svelte</title>
-    <meta
-      name="description"
-      content="Professioneller interaktiver Scatterplot mit D3.js, SVG und Svelte."
-    />
-  </svelte:head>
-  
-  <div class="page-shell">
-    <section class="hero">
-      <div class="hero-content">
-        <div class="hero-badge">Projekt · 1 Person · D3.js + SVG + Svelte</div>
-        <h1>Interaktive Datenvisualisierung mit intelligentem Scatterplot</h1>
-        <p class="hero-text">
-          Dieses Projekt visualisiert den Zusammenhang zwischen
-          <strong>BIP pro Kopf</strong> und <strong>Lebenserwartung</strong>.
-          Nutzer können gezielt nach Kontinenten filtern, Länder analysieren und
-          über eine interaktive Oberfläche schneller Erkenntnisse gewinnen.
+  import { mean, max } from 'd3-array';
+  import ScatterPlot from '$lib/ScatterPlot.svelte';
+  import LollipopChart from '$lib/LollipopChart.svelte';
+  import DoughnutChart from '$lib/DoughnutChart.svelte';
+  import ColumnChart from '$lib/ColumnChart.svelte';
+  import { countryData } from '$lib/data.js';
+
+  let activeContinent = $state('All');
+
+  const continents = [...new Set(countryData.map((d) => d.continent))];
+
+  const filteredData = $derived(
+    activeContinent === 'All'
+      ? countryData
+      : countryData.filter((d) => d.continent === activeContinent)
+  );
+
+  const rankingData = $derived(
+    [...filteredData].sort((a, b) => b.life - a.life).slice(0, 8)
+  );
+
+  const stats = $derived({
+    countries: filteredData.length,
+    avgLife: filteredData.length ? mean(filteredData, (d) => d.life).toFixed(1) : '0.0',
+    maxGdp: filteredData.length
+      ? Math.round((max(filteredData, (d) => d.gdp) || 0) / 1000) + 'k'
+      : '0k',
+    totalPopulation: filteredData.length
+      ? Math.round(filteredData.reduce((sum, d) => sum + d.population, 0)) + ' Mio.'
+      : '0 Mio.'
+  });
+
+  function setFilter(continent) {
+    activeContinent = continent;
+  }
+</script>
+
+<svelte:head>
+  <title>Interactive Data Dashboard</title>
+</svelte:head>
+
+<div class="page-shell">
+  <section class="hero-panel premium-hero">
+    <div class="hero-badge">D3.js · SVG · Svelte</div>
+
+    <div class="hero-grid">
+      <div class="hero-main">
+        <h1>Country Data Dashboard</h1>
+        <p class="hero-copy">
+          Analysiere <strong>BIP</strong>, <strong>Lebenserwartung</strong> und
+          <strong>Bevölkerung</strong> in einem modernen Dashboard.
         </p>
       </div>
-    </section>
-  
-    <section class="info-grid">
-      <article class="info-card">
-        <span class="card-label">Analyse</span>
-        <h2>Klare Datenzusammenhänge</h2>
-        <p>
-          Der Scatterplot zeigt sofort, wie wirtschaftliche und soziale Kennzahlen
-          zusammenhängen.
-        </p>
-      </article>
-  
-      <article class="info-card">
-        <span class="card-label">Interaktivität</span>
-        <h2>Filter, Hover und Animation</h2>
-        <p>
-          Kontinente lassen sich per Button auswählen. Beim Überfahren erscheinen
-          detaillierte Informationen im Tooltip.
-        </p>
-      </article>
-  
-      <article class="info-card">
-        <span class="card-label">Technologie</span>
-        <h2>D3.js + SVG + Svelte</h2>
-        <p>
-          D3.js übernimmt Skalierung und Logik, SVG die Visualisierung und Svelte
-          die reaktive Benutzeroberfläche.
-        </p>
-      </article>
-    </section>
-  
-    <section class="chart-panel">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow">Interaktive Visualisierung</p>
-          <h2>Scatterplot mit Kontinent-Filter</h2>
+
+      <div class="hero-side">
+        <div class="mini-note special-note">
+          <span class="mini-label">Aktiver Filter</span>
+          <strong>{activeContinent === 'All' ? 'Alle Kontinente' : activeContinent}</strong>
         </div>
-        <p class="section-copy">
-          X-Achse: BIP pro Kopf · Y-Achse: Lebenserwartung · Größe: Bevölkerung
-        </p>
       </div>
-  
-      <ScatterPlot data={countryData} />
-    </section>
-  </div>
+    </div>
+  </section>
+
+  <section class="controls-panel premium-controls">
+    <div class="controls-head">
+      <h2>Kontinent auswählen</h2>
+    </div>
+
+    <div class="filter-row">
+      <button
+        class="filter-btn"
+        class:active-filter={activeContinent === 'All'}
+        type="button"
+        onclick={() => setFilter('All')}
+      >
+        Alle
+      </button>
+
+      {#each continents as continent}
+        <button
+          class="filter-btn"
+          class:active-filter={activeContinent === continent}
+          type="button"
+          onclick={() => setFilter(continent)}
+        >
+          {continent}
+        </button>
+      {/each}
+    </div>
+  </section>
+
+  <section class="stats-grid premium-stats">
+    <div class="stat-card glow-card">
+      <span class="stat-label">Länder</span>
+      <strong>{stats.countries}</strong>
+    </div>
+
+    <div class="stat-card glow-card">
+      <span class="stat-label">Ø Lebenserwartung</span>
+      <strong>{stats.avgLife} Jahre</strong>
+    </div>
+
+    <div class="stat-card glow-card">
+      <span class="stat-label">Höchstes BIP</span>
+      <strong>{stats.maxGdp}</strong>
+    </div>
+
+    <div class="stat-card glow-card">
+      <span class="stat-label">Gesamtbevölkerung</span>
+      <strong>{stats.totalPopulation} </strong>
+    </div>
+  </section>
+
+  <section class="dashboard-grid dashboard-grid-premium">
+    <div class="panel panel-large premium-panel">
+      <div class="panel-head">
+        <h2>Scatterplot</h2>
+        <p class="panel-copy">BIP vs. Lebenserwartung</p>
+      </div>
+
+      <ScatterPlot data={filteredData} />
+    </div>
+
+    <div class="right-column">
+      <div class="panel premium-panel">
+        <DoughnutChart data={countryData} />
+      </div>
+
+      <div class="panel premium-panel panel-small">
+        <div class="panel-head">
+          <h2>Top Länder</h2>
+          <p class="panel-copy">Nach Lebenserwartung</p>
+        </div>
+
+        <LollipopChart data={rankingData} />
+      </div>
+    </div>
+  </section>
+
+  <section class="bottom-grid">
+    <div class="panel premium-panel big-bottom-panel">
+      <ColumnChart data={filteredData} metric="gdp" />
+    </div>
+  </section>
+</div>
