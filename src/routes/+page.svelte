@@ -108,7 +108,7 @@
 
     <div class="stat-card glow-card">
       <span class="stat-label">Gesamtbevölkerung</span>
-      <strong>{stats.totalPopulation} </strong>
+      <strong>{stats.totalPopulation}</strong>
     </div>
   </section>
 

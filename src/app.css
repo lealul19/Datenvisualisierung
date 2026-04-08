@@ -202,7 +202,9 @@ button {
 
 .right-column {
   display: grid;
+  grid-template-rows: auto 1fr;
   gap: 18px;
+  align-self: stretch;
 }
 
 .panel {
@@ -461,53 +463,69 @@ button {
 }
 
 /* LOLLIPOP */
+/* LOLLIPOP */
 .lollipop-shell {
   width: 100%;
+  flex: 1;
+  display: flex;
+  align-items: stretch;
 }
 
 .lollipop-svg {
   width: 100%;
-  height: auto;
+  height: 100%;
+  min-height: 420px;
   display: block;
 }
 
 .lollipop-line {
-  stroke: rgba(148, 163, 184, 0.35);
-  stroke-width: 2.2;
+  stroke: rgba(148, 163, 184, 0.38);
+  stroke-width: 3;
+  stroke-linecap: round;
 }
 
 .lollipop-dot {
   fill: #4f8cff;
-  stroke: rgba(255, 255, 255, 0.88);
+  stroke: rgba(255, 255, 255, 0.9);
   stroke-width: 2;
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease, filter 0.2s ease;
 }
 
 .lollipop-dot:hover {
-  transform: scale(1.15);
+  transform: scale(1.14);
+  filter: drop-shadow(0 0 10px rgba(79, 140, 255, 0.35));
 }
 
 .lollipop-label {
   fill: #d6e2f1;
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 500;
 }
 
 .lollipop-value {
-  fill: #8bd8ff;
-  font-size: 12px;
+  fill: #7dd3fc;
+  font-size: 13px;
   font-weight: 700;
 }
 
 .lollipop-empty {
+  width: 100%;
+  min-height: 320px;
+  display: grid;
+  place-items: center;
   text-align: center;
   color: #8fa6c2;
-  padding: 30px 10px;
 }
 
 /* RESPONSIVE */
 @media (max-width: 1100px) {
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .right-column {
+    grid-template-rows: auto auto;
+  }
+
+  .panel-small {
+    min-height: auto;
+  
   }
 
   .dashboard-grid {
@@ -652,5 +670,10 @@ body {
   .column-head {
     flex-direction: column;
     align-items: start;
+  }
+  .panel-small {
+    min-height: 520px;
+    display: flex;
+    flex-direction: column;
   }
 }
